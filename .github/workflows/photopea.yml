@@ -34,6 +34,21 @@ jobs:
             https://www.photopea.com/api/live \
             --output photopea-output.zip
 
+      - name: Debug: list directory after download
+        run: |
+          echo "=== Directory listing ==="
+          ls -lh .
+
+      - name: Debug: inspect photopea-output.zip
+        run: |
+          if [ -f photopea-output.zip ]; then
+            echo "ZIP exists; file type and first bytes:"
+            file photopea-output.zip
+            head -c 64 photopea-output.zip | hexdump -C
+          else
+            echo "❌ photopea-output.zip not found"
+          fi
+
       - name: Unzip outputs
         run: |
           mkdir -p outputs
