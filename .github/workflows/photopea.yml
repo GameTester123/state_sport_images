@@ -41,4 +41,31 @@ jobs:
           git add outputs
           git commit -m "📦 Add Photopea-generated PNGs" || echo "No changes to commit"
           git push
+    - name: Call Photopea API
+      run: |
+        curl -s \
+          -H "Content-Type: application/json" \
+          -d '{ /* …your JSON payload… */ }' \
+          https://www.photopea.com/api/live \
+          --output photopea-output.zip
+
++   - name: Debug: list files after download
++     run: |
++       echo "=== Directory listing ==="
++       ls -lh .
+
++   - name: Debug: inspect ZIP (if present)"
++     run: |
++       if [ -f photopea-output.zip ]; then
++         echo "ZIP exists, size:"
++         ls -lh photopea-output.zip
++         file photopea-output.zip || true
++       else
++         echo "❌ photopea-output.zip not found"
++       fi
+
+    - name: Unzip outputs
+      run: |
+        mkdir -p outputs
+        unzip -o photopea-output.zip -d outputs
 
