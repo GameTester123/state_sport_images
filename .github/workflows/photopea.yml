@@ -11,11 +11,6 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Debug: list repo contents (before API)
-        run: |
-          echo "=== BEFORE API call ==="
-          ls -R .
-
       - name: Call Photopea API
         run: |
           curl -s \
@@ -39,30 +34,10 @@ jobs:
             https://www.photopea.com/api/live \
             --output photopea-output.zip
 
-      - name: Debug: list files after download
-        run: |
-          echo "=== AFTER download ==="
-          ls -lh .
-
-      - name: Debug: inspect ZIP
-        run: |
-          if [ -f photopea-output.zip ]; then
-            echo "ZIP exists, size:"
-            ls -lh photopea-output.zip
-            file photopea-output.zip || true
-          else
-            echo "❌ photopea-output.zip not found"
-          fi
-
       - name: Unzip outputs
         run: |
           mkdir -p outputs
           unzip -o photopea-output.zip -d outputs
-
-      - name: Debug: list outputs folder
-        run: |
-          echo "=== CONTENTS of outputs/ ==="
-          ls -lh outputs
 
       - name: Commit and push results
         run: |
