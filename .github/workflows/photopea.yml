@@ -6,12 +6,15 @@ on:
 jobs:
   run-photopea:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y unzip curl
+      - name: Debug: list repo contents (before API)
+        run: |
+          echo "=== BEFORE API call ==="
+          ls -R .
 
       - name: Call Photopea API
         run: |
@@ -21,7 +24,14 @@ jobs:
               "files": [
                 "https://GameTester123.github.io/state_sport_images/Louisiana%20Softball.png",
                 "https://GameTester123.github.io/state_sport_images/Michigan%20Softball.png",
-                /* etc… */
+                "https://GameTester123.github.io/state_sport_images/Minnesota%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/Mississippi%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/Nevada%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/New%20Mexico%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/Ohio%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/Oklahoma%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/South%20Carolina%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/Texas%20Softball.png",
                 "https://GameTester123.github.io/state_sport_images/Virginia%20Softball.png"
               ],
               "script": "for(var i=0;i<files.length;i++){app.open(files[i]);app.showWindow('magiccut');app.activeDocument.saveToOE('png');app.activeDocument.close();}"
@@ -29,10 +39,30 @@ jobs:
             https://www.photopea.com/api/live \
             --output photopea-output.zip
 
+      - name: Debug: list files after download
+        run: |
+          echo "=== AFTER download ==="
+          ls -lh .
+
+      - name: Debug: inspect ZIP
+        run: |
+          if [ -f photopea-output.zip ]; then
+            echo "ZIP exists, size:"
+            ls -lh photopea-output.zip
+            file photopea-output.zip || true
+          else
+            echo "❌ photopea-output.zip not found"
+          fi
+
       - name: Unzip outputs
         run: |
           mkdir -p outputs
           unzip -o photopea-output.zip -d outputs
+
+      - name: Debug: list outputs folder
+        run: |
+          echo "=== CONTENTS of outputs/ ==="
+          ls -lh outputs
 
       - name: Commit and push results
         run: |
@@ -41,31 +71,3 @@ jobs:
           git add outputs
           git commit -m "📦 Add Photopea-generated PNGs" || echo "No changes to commit"
           git push
-    - name: Call Photopea API
-      run: |
-        curl -s \
-          -H "Content-Type: application/json" \
-          -d '{ /* …your JSON payload… */ }' \
-          https://www.photopea.com/api/live \
-          --output photopea-output.zip
-
-+   - name: Debug: list files after download
-+     run: |
-+       echo "=== Directory listing ==="
-+       ls -lh .
-
-+   - name: Debug: inspect ZIP (if present)"
-+     run: |
-+       if [ -f photopea-output.zip ]; then
-+         echo "ZIP exists, size:"
-+         ls -lh photopea-output.zip
-+         file photopea-output.zip || true
-+       else
-+         echo "❌ photopea-output.zip not found"
-+       fi
-
-    - name: Unzip outputs
-      run: |
-        mkdir -p outputs
-        unzip -o photopea-output.zip -d outputs
-
