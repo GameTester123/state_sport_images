@@ -1,0 +1,44 @@
+name: Run Photopea and Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-photopea:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y unzip curl
+
+      - name: Call Photopea API
+        run: |
+          curl -s \
+            -H "Content-Type: application/json" \
+            -d '{
+              "files": [
+                "https://GameTester123.github.io/state_sport_images/Louisiana%20Softball.png",
+                "https://GameTester123.github.io/state_sport_images/Michigan%20Softball.png",
+                /* etc… */
+                "https://GameTester123.github.io/state_sport_images/Virginia%20Softball.png"
+              ],
+              "script": "for(var i=0;i<files.length;i++){app.open(files[i]);app.showWindow('magiccut');app.activeDocument.saveToOE('png');app.activeDocument.close();}"
+            }' \
+            https://www.photopea.com/api/live \
+            --output photopea-output.zip
+
+      - name: Unzip outputs
+        run: |
+          mkdir -p outputs
+          unzip -o photopea-output.zip -d outputs
+
+      - name: Commit and push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs
+          git commit -m "📦 Add Photopea-generated PNGs" || echo "No changes to commit"
+          git push
+
